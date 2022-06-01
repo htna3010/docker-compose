@@ -1,0 +1,42 @@
+version: '3.3'
+services:
+  frontend:
+    build: ./client
+    expose:
+      - "80"
+    ports:
+      - "4200:80"
+    working_dir: /app/frontend/client/
+
+  database:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=my_database
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - appnetwork
+    ports:
+      - "5432"
+    volumes:
+      - appdata1:/var/lib/postgres/data
+
+  backend:
+    build: ./server
+    image: backendimage
+    depends_on:
+      - database
+    networks:
+      - appnetwork
+    ports:
+      - "8080:8080"
+
+networks:
+  appnetwork:
+    driver: bridge
+
+volumes:
+  appdata1:
+
+
