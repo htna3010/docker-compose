@@ -1,0 +1,69 @@
+version: '3.3'
+services:
+  frontend:
+    build: ./client
+    networks:
+      - publicnetwork
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=publicnetwork
+      - traefik.http.routers.frontend.entrypoints=web
+      - traefik.http.routers.frontend.rule=Host(`frontend.127.0.0.1.nip.io`)
+      - treafik.http.routers.frontend.service=frontend
+      - traefik.http.services.frontend.loadbalancer.server.port=80
+
+  database:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=my_database
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - appnetwork
+    volumes:
+      - appdata1:/var/lib/postgres/data
+
+  backend:
+    build: ./server
+    image: backendimage
+    depends_on:
+      - database
+    networks:
+      - appnetwork
+      - publicnetwork
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=publicnetwork
+      - traefik.http.routers.backend.entrypoints=web
+      - traefik.http.routers.backend.rule=Host(`backend.127.0.0.1.nip.io`)
+      - treafik.http.routers.backend.service=backend
+      - traefik.http.services.backend.loadbalancer.server.port=8080
+
+  traefik:
+    image: traefik:v2.1
+    networks:
+      - publicnetwork
+    command:
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.docker.network=publicnetwork
+      - --providers.docker.exposedbydefault=false
+      - --entryPoints.web.address=:80
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+
+networks:
+  appnetwork:
+    driver: bridge
+  publicnetwork:
+    name: publicnetwork
+
+volumes:
+  appdata1:
+
+

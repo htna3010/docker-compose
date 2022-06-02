@@ -1,0 +1,8 @@
+<div>
+  <div class="header-containter" fxLayout="row" fxLayoutAlign="start space-between">
+    <div *ngFor="let element of elements;let selectedIndex = index" fxLayout="column" fxLayoutAlign="center center" fxFlex="15%" (click)="onClickMenu(selectedIndex)" 
+        [ngClass]="this.produitService.currentMenuTab[selectedIndex] ? 'elementclicked' : 'elementdefault'">
+        <p>{{ element.title }}</p>
+    </div>
+  </div>
+</div>
