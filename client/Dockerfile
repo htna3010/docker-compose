@@ -1,3 +1,4 @@
+#Stage 1
 FROM node:14.18.3-alpine as build
 
 RUN mkdir -p /app/frontend/client/
@@ -12,6 +13,7 @@ COPY . /app/frontend/client/
 
 RUN npm run build
 
+#Stage 2
 FROM nginx:latest
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
